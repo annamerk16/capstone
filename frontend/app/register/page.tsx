@@ -30,7 +30,7 @@ export default function RegisterPage(){
 
       setLoading(true)
 
-      const res = await fetch(`${apiUrl}/auth/register`,{
+      const res = await fetch(`${apiUrl}/users/signup`,{
 
         method:"POST",
 
