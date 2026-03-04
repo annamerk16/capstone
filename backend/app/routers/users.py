@@ -29,3 +29,4 @@ async def login(body: UserLogin):
         }
     except Exception as e:
         raise HTTPException(status_code=401, detail="Invalid credentials")
+    
