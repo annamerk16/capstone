@@ -2,6 +2,7 @@ from fastapi import APIRouter, HTTPException, Depends
 from app.schemas import PlaceCreate
 from app.database import supabase
 from app.auth import get_current_user
+from app.google_places import seed_places_from_google
 
 router = APIRouter(prefix="/places", tags=["places"])
 
@@ -48,5 +49,22 @@ async def get_place(place_id: str):
         return {"place": response.data[0]}
     except HTTPException:
         raise
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    
+
+@router.post("/seed")
+async def seed_places(
+    query: str = "restaurants in NYC",
+    max_results: int = 20,
+    current_user=Depends(get_current_user)
+):
+    try:
+        result = seed_places_from_google(query, max_results)
+        return {
+            "message": f"Seeded {len(result['inserted'])} places",
+            "inserted": result["inserted"],
+            "skipped": result["skipped"]
+        }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
