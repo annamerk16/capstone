@@ -35,6 +35,17 @@ WEIGHTS = {
 
 def get_recommendations(db: Session, req: RecommendationRequest) -> list[RecommendationItem]:
     candidates = _load_candidates(db)
+    if len(candidates) < 5:
+        from app.services.google_places import fetch_and_cache_google_places
+        fetch_and_cache_google_places(
+            db,
+            query=req.keywords + " NYC",
+            lat=req.lat,
+            lng=req.lng,
+            radius_km=req.radius_km,
+            limit=20,
+        )
+        candidates = _load_candidates(db)
     scored: list[tuple[RecommendationItem, float]] = []
 
     for place in candidates:
